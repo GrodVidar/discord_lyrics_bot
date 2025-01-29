@@ -2,21 +2,24 @@ import os
 
 from dotenv import load_dotenv
 from bot import Bot
+import discord
 
 
 if __name__ == "__main__":
     load_dotenv()
-    TOKEN = os.getenv("DISCORD_TOKEN")
-    GAME = os.getenv("DISCORD_GAME")
+    TOKEN = os.getenv("DISCORD_TOKEN", '')
+    GAME = os.getenv("DISCORD_GAME", "lyrics_guesser")
+    CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("SPOTIFY_SECRET")
 
-    client = Bot(command_prefix="!", activity=discord.Game(name=GAME))
+    bot = Bot(CLIENT_ID, CLIENT_SECRET, command_prefix="!", activity=discord.Game(name=GAME))
 
-    cogs = ['Functions.guess_lyric']
+    cogs = ['Functions.add_data', 'Functions.guess_lyric']
 
-    @client.event
+    @bot.event
     async def on_ready():
         print("Bot is ready.")
         for cog in cogs:
-            client.load_extension(cog)
+            await bot.load_extension(cog)
 
-    client.run(TOKEN)
+    bot.run(TOKEN)
