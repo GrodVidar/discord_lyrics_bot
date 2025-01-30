@@ -35,6 +35,7 @@ class GuessLyrics(commands.Cog):
                 await self.game_state.stop_game()
                 return
             if self.game_state.guess(message.content):
+                await message.add_reaction('⭐')
                 await message.channel.send(
                     f"{message.author.nick if message.author.nick else message.author.display_name} guessed correct!\n"
                     f"It took {self.game_state.attempts} attempts."
