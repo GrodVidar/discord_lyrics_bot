@@ -70,8 +70,8 @@ class GuessLyrics(commands.Cog):
             f"use `!hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
             "Type `give_up` to give up."
         )
-        print(self.game_state.song.lyrics.split('\r\n')[:2])
-        await thread.send(f"`{'\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])}`")
+        lyrics = '\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])
+        await thread.send(f"`{lyrics}`")
         await interaction.response.send_message("Game started!", ephemeral=True)
 
     @app_commands.command(name='start_by_album_url',
@@ -98,7 +98,8 @@ class GuessLyrics(commands.Cog):
             f"use `!hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
             "Type `give_up` to give up."
         )
-        await thread.send(f"`{'\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])}`")
+        lyrics = '\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])
+        await thread.send(f"`{lyrics}`")
         await interaction.followup.send("Game started!", ephemeral=True)
 
     @app_commands.command(name='hint',
