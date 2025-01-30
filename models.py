@@ -36,7 +36,7 @@ class Album(Base):
         album = session.query(cls).filter_by(spotify_id=album_spotify_id).first()
         if album:
             return session.query(Song).filter_by(album_id=album.id).order_by(func.random()).first()
-        raise NoResultFound("No album found with that id")
+        raise NoResultFound("No songs/lyrics found for that album")
 
 user_song = Table(
     'user_song',

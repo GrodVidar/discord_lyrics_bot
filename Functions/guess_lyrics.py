@@ -85,9 +85,11 @@ class GuessLyrics(commands.Cog):
         await interaction.response.defer()
         try:
             self.repository.get_songs_from_album(album_id)
+            self.game_state.start_game_from_album(album_id)
         except ValueError as e:
             return await interaction.followup.send(str(e), ephemeral=True)
-        self.game_state.start_game_from_album(album_id)
+        except NoResultFound as e:
+            return await interaction.followup.send(str(e), ephemeral=True)
         thread = await interaction.channel.create_thread(
             name="Guess the lyrics!",
             auto_archive_duration=60,
