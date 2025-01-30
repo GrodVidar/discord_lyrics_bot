@@ -55,7 +55,7 @@ class GuessLyrics(commands.Cog):
             self.game_state.start_game(interaction.user.id)
         except NoResultFound:
             await interaction.response.send_message(
-                "You need to add songs first.\nUse `!add_artist <url>` or `!add_album <url>`",
+                "You need to add songs first.\nUse `/add_artist <url>` or `/add_album <url>`",
                 ephemeral=True
             )
             return
@@ -68,7 +68,7 @@ class GuessLyrics(commands.Cog):
         print(thread)
         self.game_state.thread = thread
         await thread.send(
-            f"use `!hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
+            f"use `/hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
             "Type `give_up` to give up."
         )
         lyrics = '\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])
@@ -98,7 +98,7 @@ class GuessLyrics(commands.Cog):
         )
         self.game_state.thread = thread
         await thread.send(
-            f"use `!hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
+            f"use `/hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
             "Type `give_up` to give up."
         )
         lyrics = '\n'.join(self.game_state.song.lyrics.split('\r\n')[:2])

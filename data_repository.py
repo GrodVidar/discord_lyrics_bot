@@ -18,7 +18,7 @@ class DataRepository:
 
     def add_song_from_data(self, data, album: Album):
         lyrics = self.get_song_lyrics(data['artists'][0]['name'], data['name'])
-        if lyrics is None:
+        if not lyrics:
             return
         artist = self.bot.session.query(Artist).filter_by(spotify_id=data['artists'][0]['id']).first()
         existing_album = self.bot.session.query(Album).filter_by(spotify_id=album.spotify_id).first()
@@ -42,7 +42,7 @@ class DataRepository:
         album = Album(spotify_id=album_data['id'], name=album_data['name'])
         for song in album_data.get('tracks', {}).get('items', []):
             db_song = self.add_song_from_data(song, album)
-            if user and song not in user.songs:
+            if db_song and user and db_song not in user.songs:
                 user.songs.append(db_song)
             try:
                 self.bot.session.commit()
