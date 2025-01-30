@@ -17,7 +17,26 @@ class Artist(Base):
     spotify_id = Column(String, unique=True, index=True)
     name = Column(String, unique=True, index=True)
 
+    albums = relationship('Album', back_populates='artist')
     songs = relationship('Song', back_populates='artist')
+
+class Album(Base):
+    __tablename__ = 'albums'
+
+    id = Column(Integer, primary_key=True, index=True)
+    spotify_id = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
+    artist_id = Column(Integer, ForeignKey('artists.id'))
+
+    artist = relationship('Artist', back_populates='albums')
+    songs = relationship('Song', back_populates='album')
+
+    @classmethod
+    def get_random_song(cls, session, album_spotify_id):
+        album = session.query(cls).filter_by(spotify_id=album_spotify_id).first()
+        if album:
+            return session.query(Song).filter_by(album_id=album.id).order_by(func.random()).first()
+        raise NoResultFound("No album found with that id")
 
 user_song = Table(
     'user_song',
@@ -35,8 +54,10 @@ class Song(Base):
     lyrics = Column(String)
     album = Column(String)
     url = Column(String)
+    album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
 
+    album = relationship('Album', back_populates='songs')
     artist = relationship('Artist', back_populates='songs')
     users = relationship('User', secondary=user_song, back_populates='songs')
 
@@ -76,6 +97,11 @@ class GameState:
     def start_game(self, user_id):
         self.attempts = 0
         self.song = User.get_random_song(self.bot.session, user_id)
+        self.is_game_active = True
+
+    def start_game_from_album(self, album_id):
+        self.attempts = 0
+        self.song = Album.get_random_song(self.bot.session, album_id)
         self.is_game_active = True
 
     async def stop_game(self):

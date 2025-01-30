@@ -21,33 +21,6 @@ class Bot(commands.Bot):
         Session = sessionmaker(bind=engine)
         self._session = Session()
 
-    def get_song_lyrics(self, artist_name, song_title) -> Optional[str]:
-        url = f"https://api.lyrics.ovh/v1/{artist_name}/{song_title}"
-        try:
-            return requests.get(url).json().get('lyrics')
-        except Exception as e:
-            print(e)
-            return None
-
-    def add_song_from_data(self, data):
-        lyrics = self.get_song_lyrics(data['artists'][0]['name'], data['name'])
-        if lyrics is None:
-            return
-        artist = self._session.query(Artist).filter_by(spotify_id=data['artists'][0]['id']).first()
-        song = self._session.query(Song).filter_by(spotify_id=data['id']).first()
-        if not artist:
-            artist = Artist(spotify_id=data['artists'][0]['id'], name=data['artists'][0]['name'])
-            self._session.add(artist)
-        if not song:
-            song = Song(spotify_id=data['id'], title=data['name'], lyrics=lyrics, artist=artist)
-            self._session.add(song)
-
-    def get_songs_from_album(self, album_id):
-        songs_data = self.spotify.get_album_songs(album_id)
-        for song in songs_data.get('items', []):
-            self.add_song_from_data(song)
-
-
     @property
     def session(self):
         return self._session
