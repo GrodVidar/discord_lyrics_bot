@@ -16,7 +16,7 @@ class AddData(commands.Cog):
 
     @app_commands.command(name="add_artist", description="Add an artist to the database.")
     async def add_artist(self, interaction: discord.Interaction, url: str):
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         artist_id = SpotifyAPI.extract_id_from_url(url)
         if artist_id is None:
             return await interaction.followup.send("Invalid URL.", ephemeral=True)
@@ -24,13 +24,15 @@ class AddData(commands.Cog):
         albums_data = self.bot.spotify.get_artist_albums(artist_id)
         if albums_data.get('error'):
             return await interaction.followup.send("No artist found with that id.", ephemeral=True)
-        for item in albums_data.get('items', []):
+        progress_message = await interaction.followup.send("Processing albums...", ephemeral=True)
+        for i, item in enumerate(albums_data.get('items', [])):
+            await progress_message.edit(content=f"Processing album{albums_added + 1}: {item['name']}")
             self.repository.get_songs_from_album(item['id'], user)
-        return await interaction.followup.send("Artist added.", ephemeral=True)
+        return await progress_message.edit(content="Artist added.")
 
     @app_commands.command(name="add_album", description="Add an album to the database.")
     async def add_album(self, interaction: discord.Interaction, url: str):
-        await interaction.response.defer()
+        await interaction.response.defer(ephermal=True)
         album_id =  SpotifyAPI.extract_id_from_url(url)
         if not album_id:
             return await interaction.followup.send("Invalid URL.", ephemeral=True)

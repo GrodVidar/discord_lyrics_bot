@@ -64,8 +64,6 @@ class GuessLyrics(commands.Cog):
             auto_archive_duration=60,
             type=discord.ChannelType.public_thread
         )
-        print(interaction.channel)
-        print(thread)
         self.game_state.thread = thread
         await thread.send(
             f"use `/hint` to get a hint(after {self.FIRST_HINT} and {self.SECOND_HINT} attempts).\n"
@@ -83,7 +81,7 @@ class GuessLyrics(commands.Cog):
         album_id = SpotifyAPI.extract_id_from_url(url)
         if not album_id:
             return await interaction.response.send_message("Invalid album url.", ephemeral=True)
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
             self.repository.get_songs_from_album(album_id)
             self.game_state.start_game_from_album(album_id)

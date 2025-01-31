@@ -22,7 +22,10 @@ class DataRepository:
             return
         artist = self.bot.session.query(Artist).filter_by(spotify_id=data['artists'][0]['id']).first()
         existing_album = self.bot.session.query(Album).filter_by(spotify_id=album.spotify_id).first()
-        song = self.bot.session.query(Song).filter_by(spotify_id=data['id']).first()
+        song = self.bot.session.query(Song).filter(
+            (Song.spotify_id==data['id']) |
+            ((Song.title==data['name']) & (Song.artist==artist))
+        ).first()
         if not artist:
             artist = Artist(spotify_id=data['artists'][0]['id'], name=data['artists'][0]['name'])
             self.bot.session.add(artist)
@@ -42,14 +45,12 @@ class DataRepository:
         album = Album(spotify_id=album_data['id'], name=album_data['name'])
         for song in album_data.get('tracks', {}).get('items', []):
             db_song = self.add_song_from_data(song, album)
-            if db_song and user and db_song not in user.songs:
-                user.songs.append(db_song)
             try:
+                if db_song and user and db_song not in user.songs:
+                    user.songs.append(db_song)
                 self.bot.session.commit()
             except Exception as e:
-                print(e)
-                print("skipping duplicate: ", song['name'])
-                continue
+                self.bot.session.rollback()
 
     def get_or_create_user(self, discord_id):
         user = self.bot.session.query(User).filter_by(discord_id=discord_id).first()
