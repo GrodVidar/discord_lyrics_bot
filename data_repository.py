@@ -43,14 +43,17 @@ class DataRepository:
         if album_data.get('error'):
             raise ValueError("No album found with that id")
         album = Album(spotify_id=album_data['id'], name=album_data['name'])
+        songs_added = 0
         for song in album_data.get('tracks', {}).get('items', []):
             db_song = self.add_song_from_data(song, album)
             try:
                 if db_song and user and db_song not in user.songs:
                     user.songs.append(db_song)
                 self.bot.session.commit()
+                songs_added += 1
             except Exception as e:
                 self.bot.session.rollback()
+        return songs_added
 
     def get_or_create_user(self, discord_id):
         user = self.bot.session.query(User).filter_by(discord_id=discord_id).first()

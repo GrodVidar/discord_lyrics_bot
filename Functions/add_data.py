@@ -25,10 +25,13 @@ class AddData(commands.Cog):
         if albums_data.get('error'):
             return await interaction.followup.send("No artist found with that id.", ephemeral=True)
         progress_message = await interaction.followup.send("Processing albums...", ephemeral=True)
+        songs_added = 0
+        albums_added = 0
         for i, item in enumerate(albums_data.get('items', [])):
-            await progress_message.edit(content=f"Processing album{albums_added + 1}: {item['name']}")
-            self.repository.get_songs_from_album(item['id'], user)
-        return await progress_message.edit(content="Artist added.")
+            albums_added += 1
+            await progress_message.edit(content=f"Processing album {albums_added + 1}: {item['name']}")
+            songs_added += self.repository.get_songs_from_album(item['id'], user)
+        return await progress_message.edit(content=f"Artist added with {songs_added} songs.")
 
     @app_commands.command(name="add_album", description="Add an album to the database.")
     async def add_album(self, interaction: discord.Interaction, url: str):
@@ -37,11 +40,12 @@ class AddData(commands.Cog):
         if not album_id:
             return await interaction.followup.send("Invalid URL.", ephemeral=True)
         user = self.repository.get_or_create_user(interaction.user.id)
+        songs_added = 0
         try:
-            self.repository.get_songs_from_album(album_id, user)
+            songs_added = self.repository.get_songs_from_album(album_id, user)
         except ValueError:
             return await interaction.followup.send("No album found with that id", ephemeral=True)
-        return await interaction.followup.send("Album added.", ephemeral=True)
+        return await interaction.followup.send(f"Album added with {songs_added} songs", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(AddData(bot))
