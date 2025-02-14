@@ -25,7 +25,7 @@ class GetData(commands.Cog):
         file_output.seek(0)
         text_file = io.BytesIO(file_output.getvalue().encode())
 
-        return discord.File(fp=text_file, filename="data.csv")
+        return discord.File(fp=text_file, filename="data.txt")
 
     @app_commands.command(
         name="get_artists",
